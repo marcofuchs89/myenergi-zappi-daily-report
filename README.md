@@ -1,7 +1,6 @@
 # MyEnergi Zappi Daily Report
 
-This repository/script was inspired by a need of a colleague of mine.  
-He needed to have a daily summary of the total kWh value of the Zappi Wallbox.
+The script fetches data from the MyEnergi cloud (particular the Zappi Wallbox) and calculates the total daily output in kWh and writes it to a generated .csv file for easy daily tracking.
 
 ## Components
 
