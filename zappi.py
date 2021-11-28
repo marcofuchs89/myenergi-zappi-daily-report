@@ -87,4 +87,6 @@ def write_daily_total():
 
 
 if __name__ == "__main__":
+    if CSV_SEPARATOR == DECIMAL_SEPARATOR:
+        raise Exception('CSV_SEPARATOR and DECIMAL_SEPARATOR must be different')
     write_daily_total()
