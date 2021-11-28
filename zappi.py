@@ -19,6 +19,7 @@ STATUS_URL  = cfg.myenergi['status_url']
 ZAPPI_SNO   = cfg.myenergi['zappi_sno'] 
 CSV_FILE    = cfg.myenergi['data_target_path'] + f'{YEAR}-{MONTH}.csv'
 daily_statistic_url = cfg.myenergi['zappi_url'] + cfg.myenergi['zappi_sno'] + '-' + f'{YEAR}-{MONTH}-{DAY}'
+hourly_statistic_url = cfg.myenergi['zappi_url_hour'] + cfg.myenergi['zappi_sno'] + '-' + f'{YEAR}-{MONTH}-{DAY}'
 
 #https://s18.myenergi.net/cgi-jdayhour-Znnnnnnnn-YYYY-MM-DD
 
@@ -58,14 +59,28 @@ def generate_daily_total():
     return total
 
 
+# get the time stamp of the first charge of the day
+def get_first_charge_time():
+    response_data = access_server(hourly_statistic_url)
+    for i in response_data[f'U{ZAPPI_SNO}']:
+        for key in i.keys():
+            if key == 'h1d':
+                if i[key] > 0:
+                    timestamp = str(i['hr']) + ':' + str(i['min'])
+                    return timestamp
+    return None
+
 #write the daily total to a .csv file
 def write_daily_total():
     total = generate_daily_total()
 
     #only write if there is a value > 0 kWh
     if total > 0:
+        #get the first charge time
+        timestamp = get_first_charge_time()
+        #write the data to the csv file
         with open(CSV_FILE, 'a') as f:
-            f.write(f'{DAY},{MONTH},{YEAR},' + str(total) + '\n')
+            f.write(f'{DAY},{MONTH},{YEAR},' + str(timestamp) + ',' + str(total) + '\n')
         f.close()
 
 
