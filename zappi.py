@@ -82,11 +82,13 @@ def write_daily_total():
         timestamp = get_first_charge_time()
         #write the data to the csv file
         with open(CSV_FILE, 'a') as f:
-            f.write(f'{DAY}{CSV_SEPARATOR}{MONTH}{CSV_SEPARATOR}{YEAR}{CSV_SEPARATOR}' + str(timestamp) + CSV_SEPARATOR + str(total).replace('.', DECIMAL_SEPARATOR) + '\n')
+            f.write(f'{DAY}.{MONTH}.{YEAR}' + CSV_SEPARATOR + str(timestamp) + CSV_SEPARATOR + str(total).replace('.', DECIMAL_SEPARATOR) + '\n')
         f.close()
 
 
 if __name__ == "__main__":
     if CSV_SEPARATOR == DECIMAL_SEPARATOR:
         raise Exception('CSV_SEPARATOR and DECIMAL_SEPARATOR must be different')
+    elif CSV_SEPARATOR not in [' ', ';', ',']:
+        raise Exception('CSV_SEPARATOR must be either "," or ";" or " "')
     write_daily_total()
