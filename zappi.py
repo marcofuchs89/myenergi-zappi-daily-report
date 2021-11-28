@@ -18,6 +18,8 @@ PASSWORD    = cfg.myenergi['password']
 STATUS_URL  = cfg.myenergi['status_url']
 ZAPPI_SNO   = cfg.myenergi['zappi_sno'] 
 CSV_FILE    = cfg.myenergi['data_target_path'] + f'{YEAR}-{MONTH}.csv'
+CSV_SEPARATOR = cfg.myenergi['csv_separator']
+DECIMAL_SEPARATOR = cfg.myenergi['decimal_separator']
 daily_statistic_url = cfg.myenergi['zappi_url'] + cfg.myenergi['zappi_sno'] + '-' + f'{YEAR}-{MONTH}-{DAY}'
 hourly_statistic_url = cfg.myenergi['zappi_url_hour'] + cfg.myenergi['zappi_sno'] + '-' + f'{YEAR}-{MONTH}-{DAY}'
 
@@ -55,7 +57,7 @@ def generate_daily_total():
             if key == 'h3d':
                 sum_h3d = sum_h3d + i[key]
     # calculate the total kWh from the joule values of the three phases of the zappi wallbox
-    total = (sum_h1d + sum_h2d + sum_h3d) / 3600000
+    total = ((sum_h1d + sum_h2d + sum_h3d) / 3600000).__round__(2)
     return total
 
 
@@ -80,7 +82,7 @@ def write_daily_total():
         timestamp = get_first_charge_time()
         #write the data to the csv file
         with open(CSV_FILE, 'a') as f:
-            f.write(f'{DAY},{MONTH},{YEAR},' + str(timestamp) + ',' + str(total) + '\n')
+            f.write(f'{DAY}{CSV_SEPARATOR}{MONTH}{CSV_SEPARATOR}{YEAR}{CSV_SEPARATOR}' + str(timestamp) + CSV_SEPARATOR + str(total).replace('.', DECIMAL_SEPARATOR) + '\n')
         f.close()
 
 
