@@ -4,6 +4,7 @@ The script fetches data from the MyEnergi cloud (particular the Zappi Wallbox) a
 
 ## Changelog
 
+* 2021-11-28 - Add an option to change the decimal point and csv separator in the config.py
 * 2021-11-28 - Rename the config.py file to config.py.example for better updating
 
 ## Components
@@ -34,6 +35,13 @@ Execute the zappi.py script in a cron job to be run on a daily basis, e.g. close
 
 At the location defined in the **config.py** ("data_target_path") you'll find a .csv file in the format "YYYY-MM.csv".  
 The file will contain the information of the day in the format > Year, Month, Day, timestamp_of_first_charge, Total_kWh
+
+### Example
+
+```csv
+2021,11,21,7:26,17.36
+2021,11,28,15:36,31.77
+```
 
 ## CREDITS
 
