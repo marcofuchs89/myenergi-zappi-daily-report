@@ -29,7 +29,7 @@ Execute the zappi.py script in a cron job to be run on a daily basis, e.g. close
 ## Outcome
 
 At the location defined in the **config.py** ("data_target_path") you'll find a .csv file in the format "YYYY-MM.csv".  
-The file will contain the information of the day in the format > Year, Month, Day, Total_kWh
+The file will contain the information of the day in the format > Year, Month, Day, timestamp_of_first_charge, Total_kWh
 
 ## CREDITS
 
