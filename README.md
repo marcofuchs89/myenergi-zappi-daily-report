@@ -2,6 +2,10 @@
 
 The script fetches data from the MyEnergi cloud (particular the Zappi Wallbox) and calculates the total daily output in kWh and writes it to a generated .csv file for easy daily tracking.
 
+## Changelog
+
+* 2021-11-28 - Rename the config.py file to config.py.example for better updating
+
 ## Components
 
 **zappi.py** - is the main script that should be executed at the end of the day to calculate the total kWh value.  
@@ -17,7 +21,7 @@ It fetches the hourly status from the MyEnergi Cloud and calculates the total am
 
 ## Usage
 
-* Clone the repository and edit the config.py to suit your needs
+* Clone the repository and edit the config.py.example to suit your needs and save it as 'config.py'
 * Open a terminal and ```cd``` into the directory
 * Install the python requirements with ```pip3 install -r requirements.txt```
 * Run the script with ```python3 zappi.py```
