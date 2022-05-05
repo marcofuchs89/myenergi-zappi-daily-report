@@ -7,6 +7,14 @@ import logging
 
 from   requests.auth import HTTPDigestAuth
 
+# Logging configuration
+logger = logging.getLogger('ZAPPI')
+logger.setLevel(logging.DEBUG)
+fh = logging.FileHandler('zappi.log', mode='a', encoding='UTF-8', delay=False)
+fh.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s || %(levelname)s: %(message)s')
+fh.setFormatter(formatter)
+logger.addHandler(fh)
 
 CURRENT_DATE = datetime.datetime.today()
 
@@ -26,14 +34,17 @@ hourly_statistic_url = cfg.myenergi['zappi_url_hour'] + cfg.myenergi['zappi_sno'
 #function to access the server using a parsed URL 
 def access_server(url_request):
     headers = {'User-Agent': 'Wget/1.14 (linux-gnu)'}
+    logger.info("Accessing server: " + url_request)
     r = requests.get(url_request, headers = headers, auth=HTTPDigestAuth(USERNAME, PASSWORD), timeout=10)
     if (r.status_code == 200):
+        logger.info("Successfully accessed server")
         print ("") #"Login successful..") 
     elif (r.status_code == 401):
+        logger.error("Login failed..")
         print ("Login unsuccessful!!! Please check USERNAME, PASSWORD or URL..")
         quit()
     else:
-        logging.info("Login unsuccessful, returned code: " + r.status_code)
+        logger.error("Login unsuccessful, returned code: " + r.status_code)
         quit()
     #print (r.json())
     return r.json()
@@ -56,6 +67,7 @@ def generate_daily_total():
                 sum_h3d = sum_h3d + i[key]
     # calculate the total kWh from the joule values of the three phases of the zappi wallbox
     total = (sum_h1d + sum_h2d + sum_h3d) / 3600000
+    logger.info("Daily total: " + str(total))
     return total
 
 
@@ -67,7 +79,9 @@ def get_first_charge_time():
             if key == 'h1d':
                 if i[key] > 0:
                     timestamp = str(i['hr']) + ':' + str(i['min'])
+                    logger.info("First charge time found at: " + timestamp)
                     return timestamp
+    logger.info("No first charge time found")
     return None
 
 #write the daily total to a .csv file
@@ -82,7 +96,12 @@ def write_daily_total():
         with open(CSV_FILE, 'a') as f:
             f.write(f'{DAY},{MONTH},{YEAR},' + str(timestamp) + ',' + str(total) + '\n')
         f.close()
+        logger.info("Daily total written to file: " + CSV_FILE)
+    else:
+        logger.info("No daily total written to file: " + CSV_FILE)
 
 
 if __name__ == "__main__":
+    logger.info("Starting zappi.py ...")
     write_daily_total()
+    logger.info("... executed zappi.py successfully")
