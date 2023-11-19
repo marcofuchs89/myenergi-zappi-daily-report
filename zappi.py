@@ -5,14 +5,15 @@ import datetime
 import requests
 import logging
 
-from   requests.auth import HTTPDigestAuth
+from requests.auth import HTTPDigestAuth
 
 # Logging configuration
 logger = logging.getLogger('ZAPPI')
 logger.setLevel(logging.DEBUG)
 fh = logging.FileHandler('zappi.log', mode='a', encoding='UTF-8', delay=False)
 fh.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(name)s || %(levelname)s: %(message)s')
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s || %(levelname)s: %(message)s')
 fh.setFormatter(formatter)
 logger.addHandler(fh)
 
@@ -21,41 +22,47 @@ CURRENT_DATE = datetime.datetime.today()
 DAY = f'{CURRENT_DATE.day}'
 MONTH = f'{CURRENT_DATE.month}'
 YEAR = f'{CURRENT_DATE.year}'
-USERNAME    = cfg.myenergi['user']
-PASSWORD    = cfg.myenergi['password']
-STATUS_URL  = cfg.myenergi['status_url']
-ZAPPI_SNO   = cfg.myenergi['zappi_sno'] 
-CSV_FILE    = cfg.myenergi['data_target_path'] + f'{YEAR}-{MONTH}.csv'
-daily_statistic_url = cfg.myenergi['zappi_url'] + cfg.myenergi['zappi_sno'] + '-' + f'{YEAR}-{MONTH}-{DAY}'
-hourly_statistic_url = cfg.myenergi['zappi_url_hour'] + cfg.myenergi['zappi_sno'] + '-' + f'{YEAR}-{MONTH}-{DAY}'
+USERNAME = cfg.myenergi['user']
+PASSWORD = cfg.myenergi['password']
+STATUS_URL = cfg.myenergi['status_url']
+ZAPPI_SNO = cfg.myenergi['zappi_sno']
+CSV_FILE = cfg.myenergi['data_target_path'] + f'{YEAR}-{MONTH}.csv'
+daily_statistic_url = cfg.myenergi['zappi_url'] + \
+    cfg.myenergi['zappi_sno'] + '-' + f'{YEAR}-{MONTH}-{DAY}'
+hourly_statistic_url = cfg.myenergi['zappi_url_hour'] + \
+    cfg.myenergi['zappi_sno'] + '-' + f'{YEAR}-{MONTH}-{DAY}'
 
-#https://s18.myenergi.net/cgi-jdayhour-Znnnnnnnn-YYYY-MM-DD
+# https://s18.myenergi.net/cgi-jdayhour-Znnnnnnnn-YYYY-MM-DD
 
-#function to access the server using a parsed URL 
+# function to access the server using a parsed URL
+
+
 def access_server(url_request):
     headers = {'User-Agent': 'Wget/1.14 (linux-gnu)'}
     logger.info("Accessing server: " + url_request)
-    r = requests.get(url_request, headers = headers, auth=HTTPDigestAuth(USERNAME, PASSWORD), timeout=10)
-    if (r.status_code == 200):
+    r = requests.get(url_request, headers=headers,
+                     auth=HTTPDigestAuth(USERNAME, PASSWORD), timeout=10)
+    if r.status_code == 200:
         logger.info("Successfully accessed server")
-        print ("") #"Login successful..") 
-    elif (r.status_code == 401):
+        print("")  # "Login successful..")
+    elif r.status_code == 401:
         logger.error("Login failed..")
-        print ("Login unsuccessful!!! Please check USERNAME, PASSWORD or URL..")
+        print("Login unsuccessful!!! Please check USERNAME, PASSWORD or URL..")
         quit()
     else:
         logger.error("Login unsuccessful, returned code: " + r.status_code)
         quit()
-    #print (r.json())
+    # print (r.json())
     return r.json()
 
-#function to calculate the daily total and return the result
+# function to calculate the daily total and return the result
+
+
 def generate_daily_total():
     # initialize the variables
     sum_h1d = 0
     sum_h2d = 0
     sum_h3d = 0
-    total = 0
     response_data = access_server(daily_statistic_url)
     for i in response_data[f'U{ZAPPI_SNO}']:
         for key in i.keys():
@@ -84,21 +91,24 @@ def get_first_charge_time():
     logger.info("No first charge time found")
     return None
 
-#write the daily total to a .csv file
+# write the daily total to a .csv file
+
+
 def write_daily_total():
     total = generate_daily_total()
 
-    #only write if there is a value > 0 kWh
+    # only write if there is a value > 0 kWh
     if total > 0:
-        #get the first charge time
+        # get the first charge time
         timestamp = get_first_charge_time()
-        #write the data to the csv file
+        # write the data to the csv file
         with open(CSV_FILE, 'a') as f:
-            f.write(f'{DAY},{MONTH},{YEAR},' + str(timestamp) + ',' + str(total) + '\n')
+            f.write(f'{DAY},{MONTH},{YEAR},' +
+                    str(timestamp) + ',' + str(total) + '\n')
         f.close()
         logger.info("Daily total written to file: " + CSV_FILE)
     else:
-        logger.info("No daily total written to file: " + CSV_FILE)
+        logger.info("No daily total written to file...")
 
 
 if __name__ == "__main__":
